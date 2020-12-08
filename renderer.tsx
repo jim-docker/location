@@ -1,12 +1,10 @@
-import { LensRendererExtension, Interface, Component } from "@k8slens/extensions";
+import { LensRendererExtension, Interface, Component, K8sApi } from "@k8slens/extensions";
 import React from "react"
 
 import { GlobalPage } from "./components/GlobalPage";
 import { GlobalPageMenuIcon } from "./components/GlobalPageMenuIcon";
-import StatusBarItemIcon from "./components/StatusBarItemIcon";
-
-import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { TheMap } from "./components/the-map";
+import { NodeDetailsItem } from "./components/node-details-item";
 
 const { Icon } = Component;
 
@@ -91,30 +89,6 @@ export default class RendererExtension extends LensRendererExtension {
   ]
 
   /**
-   *  `statusBarItems` allows you register register custom icons and text to a status bar area.
-   *
-   *  ```
-   *            Lens
-   *   +-----------------------+
-   *   |*|                     |
-   *   |*| 
-   *   | |                     |
-   *   | |                     |
-   *   | |                     |
-   *   | |                   * |<---------------+ statusBarItems
-   *   +-----------------------+
-   *
-   * ```
-   *
-   * @memberof RendererExtension
-  */
-  statusBarItems: Interface.StatusBarRegistration[] = [
-    {
-      item: (): JSX.Element => <StatusBarItemIcon navigate={this.navigate} />,
-    }
-  ]
-
-  /**
    *  `clusterPages` allows you register custom cluster page.
    *
    *  ```
@@ -137,55 +111,17 @@ export default class RendererExtension extends LensRendererExtension {
     // a standard cluster page
     {
       id: this.#clusterPageId,
-      title: "Cluster Page Title",
+      title: "Cluster Map",
       components: {
         Page: (): JSX.Element => (
           <div style={{
             padding: "2em",
           }}>
-            <h1>A Standard Extension Cluster Page</h1>
-            <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false}>
-              <TileLayer
-                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <Marker position={[51.505, -0.09]}>
-                <Popup>
-                  A pretty CSS3 popup. <br /> Easily customizable.
-                </Popup>
-              </Marker>
-            </MapContainer>            
-          </div>
+            <TheMap height="600px" />
+          </div>      
         ),
-      }
+         }
     },
-    // a cluster 'sub' page show in a tab
-    {
-      id: "cluster_sub_page_one",
-      title: "Cluster Sub Page One",
-      components: {
-        Page: (): JSX.Element => (
-          <div style={{
-            padding: "1em",
-          }}>
-            <h1>Sub-Page One in Tab</h1>
-          </div>
-        ),
-      }
-    },
-    {
-      id: "cluster_sub_page_two",
-      title: "Cluster Sub Page One",
-      components: {
-        Page: (): JSX.Element => (
-          <div style={{
-            padding: "1em",
-          }}>
-            <h1>Sub-Page Two in Tab</h1>
-          </div>
-        ),
-      }
-    }
   ]
   /**
    *  `clusterPageMenus` allows you register custom cluster page menu items.
@@ -212,43 +148,25 @@ export default class RendererExtension extends LensRendererExtension {
   clusterPageMenus = [
     // a cluster menu item which links to a cluster page
     {
-      title: "Cluster Page",
+      title: "Cluster Map",
       target: {
         pageId: this.#clusterPageId,
         params: {}
       },
       components: {
-        Icon: (): JSX.Element => <Icon material="pages" />,
+        Icon: (): JSX.Element => <Icon material="map" />,
       }
     },
-    // the following three items are an example of an menu item (parent)
-    // that allows to have child items.
-    //
-    // the parent, a foldable menu item
+  ];
+
+  kubeObjectDetailItems = [
     {
-      id: this.#menuItemParentId,
-      title: "Foldable Item",
+      kind: "Node",
+      apiVersions: ["v1"],
+      priority: 1000,
       components: {
-        Icon: (): JSX.Element => <Icon material="pages" />,
+        Details: (props: Component.KubeObjectDetailsProps<K8sApi.Node>) => <NodeDetailsItem {...props} />
       }
-    },
-    // the child item one
-    {
-      parentId: this.#menuItemParentId,
-      target: { pageId: "cluster_sub_page_one", params: {} },
-      title: "Sub-Page 1",
-      components: {
-        Icon: (): JSX.Element => <Icon material="arrow_right" />,
-      }
-    },
-    // the child item two
-    {
-      parentId: this.#menuItemParentId,
-      target: { pageId: "cluster_sub_page_two", params: {} },
-      title: "Sub-Page 2",
-      components: {
-        Icon: (): JSX.Element => <Icon material="arrow_right" />,
-      }
-    },
-  ]
+    }
+  ];  
 }

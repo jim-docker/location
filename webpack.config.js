@@ -17,23 +17,6 @@ module.exports = [
           use: "ts-loader",
           exclude: /node_modules/,
         },
-
-        {
-          test: /\.(gif|svg|jpg|png)$/,
-          loader: "file-loader"
-        },
-        {
-          test: /\.css$/,
-          use: [
-            MiniCssExtractPlugin.loader, 'css-loader'
-          ]
-        },
-        {
-          test: /\.scss$/,
-          use: [
-            MiniCssExtractPlugin.loader,'css-loader','sass-loader'
-          ]
-        }
       ],
     },
     externals: [
@@ -45,28 +28,6 @@ module.exports = [
     ],
     resolve: {
       extensions: [".tsx", ".ts", ".js"],
-      alias: {
-        "./images/layers.png$": path.resolve(
-            __dirname,
-            "./node_modules/leaflet/dist/images/layers.png"
-        ),
-        "./images/layers-2x.png$": path.resolve(
-            __dirname,
-            "./node_modules/leaflet/dist/images/layers-2x.png"
-        ),
-        "./images/marker-icon.png$": path.resolve(
-            __dirname,
-            "./node_modules/leaflet/dist/images/marker-icon.png"
-        ),
-        "./images/marker-icon-2x.png$": path.resolve(
-            __dirname,
-            "./node_modules/leaflet/dist/images/marker-icon-2x.png"
-        ),
-        "./images/marker-shadow.png$": path.resolve(
-            __dirname,
-            "./node_modules/leaflet/dist/images/marker-shadow.png"
-        )
-      }
     },
     output: {
       libraryTarget: "commonjs2",
