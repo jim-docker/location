@@ -1,12 +1,22 @@
+import 'ol/ol.css';
 import React, { Component } from "react";
-import { Map } from "ol";
+import { Map as OlMap} from "ol";
 import { View } from "ol";
+import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
 import { Coordinate } from "ol/coordinate";
-import { Tile } from "ol/layer";
-import { OSM } from "ol/source";
+import {Cluster, OSM, Vector as VectorSource} from 'ol/source';
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
+import {
+  Circle as CircleStyle,
+  Fill,
+  Stroke,
+  Style,
+  Text,
+} from 'ol/style';
 
 export class TheMap extends Component<{ height: string }> {
-    olmap: Map;
+    olmap: OlMap;
     state: {
         center: Coordinate,
         zoom: number
@@ -16,12 +26,13 @@ export class TheMap extends Component<{ height: string }> {
 
     this.state = { center: [0, 0], zoom: 1 };
 
-    this.olmap = new Map({
+    this.olmap = new OlMap({
       target: null,
       layers: [
-        new Tile({
+        new TileLayer({
           source: new OSM()
-        })
+        }),
+        clusters
       ],
       view: new View({
         center: this.state.center,
@@ -53,10 +64,6 @@ export class TheMap extends Component<{ height: string }> {
     return true;
   }
 
-  userAction() {
-    this.setState({ center: [546000, 6868000], zoom: 5 });
-  }
-
   render() {
       const { height } = this.props;
 
@@ -67,3 +74,55 @@ export class TheMap extends Component<{ height: string }> {
     );
   }
 }
+
+
+
+var distance = 40;
+
+var count = 20000;
+var features: Feature[] = [];
+var e = 4500000;
+for (var i = 0; i < count; ++i) {
+  var coordinates = [2 * e * Math.random() - e, 2 * e * Math.random() - e];
+  features[i] = new Feature(new Point(coordinates));
+}
+
+var source = new VectorSource({
+  features: features,
+});
+
+var clusterSource = new Cluster({
+  distance: distance,
+  source: source,
+});
+
+var styleCache: Map<number, Style>;
+
+var clusters = new VectorLayer({
+  source: clusterSource,
+  style: function (feature) {
+    var size: number = feature.get('features').length;
+    var style = styleCache.get(size);
+    if (!style) {
+      style = new Style({
+        image: new CircleStyle({
+          radius: 10,
+          stroke: new Stroke({
+            color: '#fff',
+          }),
+          fill: new Fill({
+            color: '#3399CC',
+          }),
+        }),
+        text: new Text({
+          text: size.toString(),
+          fill: new Fill({
+            color: '#fff',
+          }),
+        }),
+      });
+      styleCache.set(size, style);
+    }
+    return style;
+  },
+});
