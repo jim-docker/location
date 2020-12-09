@@ -1,12 +1,12 @@
 import 'ol/ol.css';
 import React, { Component } from "react";
-import { Map as OlMap} from "ol";
-import { View } from "ol";
+import { Map as OlMap, View} from "ol";
 import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
 import { Coordinate } from "ol/coordinate";
 import {Cluster, OSM, Vector as VectorSource} from 'ol/source';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
+import {fromLonLat} from 'ol/proj';
 import {
   Circle as CircleStyle,
   Fill,
@@ -15,7 +15,7 @@ import {
   Text,
 } from 'ol/style';
 
-export class TheMap extends Component<{ height: string }> {
+export class TheMap extends Component<{ height: string, points?: [lon: number, lat: number][] }> {
     olmap: OlMap;
     state: {
         center: Coordinate,
@@ -24,22 +24,39 @@ export class TheMap extends Component<{ height: string }> {
   constructor(props: any) {
     super(props);
 
-    this.state = { center: [0, 0], zoom: 1 };
-
     this.olmap = new OlMap({
       target: null,
       layers: [
         new TileLayer({
           source: new OSM()
-        }),
-        clusters
-      ],
-      view: new View({
-        center: this.state.center,
-        zoom: this.state.zoom
-      })
+        })
+      ]
     });
+
+    var clusters: VectorLayer;
+    const { points } = props;
+    if (points) {
+      // build the clusters
+      this.state = { center: fromLonLat(points[0]), zoom: 12 };
+      clusters = createClusters(this.pointsToFeatures(points))
+    } else {
+      this.state = { center: [0, 0], zoom: 1 };
+      clusters = createDemoClusters();
+    }
+
+    this.olmap.addLayer(clusters);
+    this.olmap.setView(new View({ center: this.state.center, zoom: this.state.zoom }));
   }
+
+  pointsToFeatures(points: [lon: number, lat: number][]) : Feature[] {
+    var features: Feature[] = [];
+    for (var i = 0; i < points.length; ++i) {
+      var coordinates = fromLonLat(points[i]);
+      features[i] = new Feature(new Point(coordinates));
+    }
+    
+    return features;
+  }  
 
   updateMap() {
     this.olmap.getView().setCenter(this.state.center);
@@ -76,53 +93,57 @@ export class TheMap extends Component<{ height: string }> {
 }
 
 
+function createDemoClusters(): VectorLayer {
+  var count = 20000;
+  var features: Feature[] = [];
+  var e = 10000000;
+  var f = 20000000;
+  for (var i = 0; i < count; ++i) {
+    var coordinates = [2 * f * Math.random() - f, 2 * e * Math.random() - e];
+    features[i] = new Feature(new Point(coordinates));
+  }
 
-var distance = 40;
-
-var count = 20000;
-var features: Feature[] = [];
-var e = 4500000;
-for (var i = 0; i < count; ++i) {
-  var coordinates = [2 * e * Math.random() - e, 2 * e * Math.random() - e];
-  features[i] = new Feature(new Point(coordinates));
+  return createClusters(features);
 }
 
-var source = new VectorSource({
-  features: features,
-});
-
-var clusterSource = new Cluster({
-  distance: distance,
-  source: source,
-});
-
-var styleCache: Map<number, Style>;
-
-var clusters = new VectorLayer({
-  source: clusterSource,
-  style: function (feature) {
-    var size: number = feature.get('features').length;
-    var style = styleCache.get(size);
-    if (!style) {
-      style = new Style({
-        image: new CircleStyle({
-          radius: 10,
-          stroke: new Stroke({
-            color: '#fff',
+function createClusters( points: Feature[]): VectorLayer {
+  var source = new VectorSource({
+    features: points,
+  });
+  
+  var clusterSource = new Cluster({
+    distance: 40,
+    source: source,
+  });
+  
+  var styleCache = new Map<number, Style>();
+  
+  return new VectorLayer({
+    source: clusterSource,
+    style: function (feature) {
+      var size: number = feature.get('features').length;
+      var style = styleCache.get(size);
+      if (!style) {
+        style = new Style({
+          image: new CircleStyle({
+            radius: 10,
+            stroke: new Stroke({
+              color: '#fff',
+            }),
+            fill: new Fill({
+              color: '#3399CC',
+            }),
           }),
-          fill: new Fill({
-            color: '#3399CC',
+          text: new Text({
+            text: size.toString(),
+            fill: new Fill({
+              color: '#fff',
+            }),
           }),
-        }),
-        text: new Text({
-          text: size.toString(),
-          fill: new Fill({
-            color: '#fff',
-          }),
-        }),
-      });
-      styleCache.set(size, style);
-    }
-    return style;
-  },
-});
+        });
+        styleCache.set(size, style);
+      }
+      return style;
+    },
+  });
+}
