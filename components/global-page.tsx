@@ -11,7 +11,7 @@ const clusterStore = Store.clusterStore
 const fakePositions: [ lon: number, lat: number ][] = [
   [-80.577277, 43.468069],
   [24.654079, 60.205238],
-  [24.654079, 60.205238],
+  [24.938379, 60.169857],
 ];
 
 var fakeCount = 0;

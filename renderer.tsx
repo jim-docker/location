@@ -1,7 +1,8 @@
 import { LensRendererExtension, Interface, Component, K8sApi } from "@k8slens/extensions";
 import React from "react"
 
-import { GlobalPage } from "./components/GlobalPage";
+import { GlobalPage } from "./components/global-page";
+import { ClusterPage } from "./components/cluster-page";
 import { GlobalPageMenuIcon } from "./components/GlobalPageMenuIcon";
 import { TheMap } from "./components/the-map";
 import { NodeDetailsItem } from "./components/node-details-item";
@@ -48,13 +49,7 @@ export default class RendererExtension extends LensRendererExtension {
       id: this.#clusterPageId,
       title: "Cluster Map",
       components: {
-        Page: (): JSX.Element => (
-          <div style={{
-            padding: "2em",
-          }}>
-            <TheMap height="600px" />
-          </div>      
-        ),
+        Page: (): JSX.Element => <ClusterPage extension={this} />,
          }
     },
   ]
