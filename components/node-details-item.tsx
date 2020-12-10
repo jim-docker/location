@@ -7,7 +7,7 @@ export class NodeDetailsItem extends React.Component<Component.KubeObjectDetails
     return (
       <div>
         <Component.DrawerTitle title="Node Map" />
-        <TheMap height="360px" points={[[-80.523911, 43.464951]]}/>
+        <TheMap height="360px" points={[[-80.577277, 43.468069]]}/>
       </div>
     )
   }

@@ -26,6 +26,10 @@
 		"test": "jest"
 	},
 	"dependencies": {
+		"@types/react-dom": "^17.0.0",
+		"conf": "^7.0.1",
+		"mobx": "^5.15.5",
+		"mobx-react": "^6.2.2",
 		"ol": "^6.4.3",
 		"react": "^17.0.1",
 		"react-dom": "^17.0.1"

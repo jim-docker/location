@@ -6,51 +6,22 @@ import { GlobalPageMenuIcon } from "./components/GlobalPageMenuIcon";
 import { TheMap } from "./components/the-map";
 import { NodeDetailsItem } from "./components/node-details-item";
 
+import { LocationPreferenceHint, LocationPreferenceInput } from "./components/location-preference";
+import { locationPreferencesStore } from "./components/location-store";
+
 const { Icon } = Component;
 
-/**
- * 
- * RendererExtension which extends LensRendererExtension runs in Lens' 'renderer' process (NOT 'main' process)
- * main vs renderer <https://www.electronjs.org/docs/tutorial/quick-start#main-and-renderer-processes>
- * 
- * LensRendererExtension is the interface to Lens' renderer process. Its api allows you to access, configure, 
- * and customize Lens data add custom Lens UI elements, and generally run custom code in Lens' renderer process.
- * 
- * The custom Lens UI elements that can be added include global pages, cluster pages, 
- * cluster features, app preferences, status bar items... See details:
- * <https://docs.k8slens.dev/master/extensions/capabilities/common-capabilities/#renderer-extension>
- *
- * LensRendererExtension API doc <https://docs.k8slens.dev/master/extensions/api/classes/lensrendererextension/>
- *
- * To see console statements in 'renderer' process, go to the console tab in DevTools in Lens
- * View > Toggle Developer Tools > Console.
- * 
- * @export
- * @class RendererExtension
- * @extends {LensRendererExtension}
- */
 export default class RendererExtension extends LensRendererExtension {
 
-  /**
-   *  `globalPages` allows you register custom global page.
-   * 
-   *  The global page is a full-screen page that hides all other content from a window.
-   *
-   *  ```
-   *            Lens
-   *   +-----------------------+
-   *   |                       |
-   *   |                       |
-   *   |      globalPages      |
-   *   |                       |
-   *   |                       |
-   *   |                       |
-   *   +-----------------------+
-   * 
-   * ```
-   *
-   * @memberof RendererExtension
-   */
+  async onActivate(): Promise<void> {
+    console.log("location renderer activated");
+    await locationPreferencesStore.loadExtension(this);
+  }
+
+  onDeactivate(): void {
+    console.log("location renderer deactivated");
+  }
+
   globalPages: Interface.PageRegistration[] = [
     {
       id: "location",
@@ -60,24 +31,6 @@ export default class RendererExtension extends LensRendererExtension {
     }
   ]
 
-  /**
-   *  `globalPageMenus` allows you register custom global page.
-   *
-   *  ```
-   *            Lens
-   *   +-----------------------+
-   *   |*|                     |
-   *   |*| <---------------+ globalPageMenus
-   *   | |                     |
-   *   | |                     |
-   *   | |                     |
-   *   | |                     |
-   *   +-----------------------+
-   * 
-   * ```
-   *
-   * @memberof RendererExtension
-   */
   globalPageMenus: Interface.PageMenuRegistration[] = [
     {
       title: "Map Overview",
@@ -88,24 +41,6 @@ export default class RendererExtension extends LensRendererExtension {
     }
   ]
 
-  /**
-   *  `clusterPages` allows you register custom cluster page.
-   *
-   *  ```
-   *            Lens
-   *   +-----------------------+
-   *   |*|-----|               |
-   *   |*|-----|               |
-   *   | |-----|  clusterPages |
-   *   | +-----+               |
-   *   | |     |               |
-   *   | |     |               |
-   *   +-----------------------+
-   * 
-   * ```
-   *
-   * @memberof RendererExtension
-   */
   #clusterPageId = "cluster_page";
   clusterPages = [
     // a standard cluster page
@@ -123,28 +58,7 @@ export default class RendererExtension extends LensRendererExtension {
          }
     },
   ]
-  /**
-   *  `clusterPageMenus` allows you register custom cluster page menu items.
-   * 
-   *  `clusterPageMenus` are menu items showing the sidebar of  a `clusterPages`.
-   *  
-   * ```
-   *             Lens
-   *   +-----------------------+
-   *   |*|-----|               |
-   *   |*|-----|  <---------------+ clusterPageMenus
-   *   | |-----|               |
-   *   | +-----+               |
-   *   | |     |               |
-   *   | |     |               |
-   *   +-----------------------+
-   * 
-   * ```
-   *
-   * @memberof RendererExtension
-   */
 
-  #menuItemParentId = "cluster_page_menu_folder";
   clusterPageMenus = [
     // a cluster menu item which links to a cluster page
     {
@@ -163,10 +77,20 @@ export default class RendererExtension extends LensRendererExtension {
     {
       kind: "Node",
       apiVersions: ["v1"],
-      priority: 1000,
+      priority: 100000000,
       components: {
         Details: (props: Component.KubeObjectDetailsProps<K8sApi.Node>) => <NodeDetailsItem {...props} />
       }
     }
-  ];  
+  ];
+  
+  appPreferences = [
+    {
+      title: "Location Preferences",
+      components: {
+        Input: () => <LocationPreferenceInput preferences={locationPreferencesStore}/>,
+        Hint: () => <LocationPreferenceHint/>
+      }
+    }
+  ];
 }
