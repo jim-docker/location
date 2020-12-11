@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: geolocations
+data:
+  docker-desktop.docker-desktop.lon: "-80.577277"
+  docker-desktop.docker-desktop.lat: "43.468069"
+  rancher.pharos-master.lon: "24.654079"
+  rancher.pharos-master.lat: "60.205238"
+  rancher.pharos-worker.lon: "24.938379"
+  rancher.pharos-worker.lat: "60.169857"
+  kind-cluster.cluster-control-plane.lon: "-121.934610"
+  kind-cluster.cluster-control-plane.lat: "37.293070"
+  kind-cluster.cluster-worker.lon: "-121.934694"
+  kind-cluster.cluster-worker.lat: "37.293520"
+  kind-cluster.cluster-worker2.lon: "-121.934028"
+  kind-cluster.cluster-worker2.lat: "37.293657"

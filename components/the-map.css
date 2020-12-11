@@ -7,3 +7,7 @@
     opacity: 0.5;
     z-index: 9999; /* Watch out for this!!! */
   }
+
+.hovercluster {
+  font-size: larger;
+}

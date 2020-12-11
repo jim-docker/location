@@ -22,7 +22,7 @@ export class ClusterPage extends React.Component<{ extension: LensRendererExtens
       <div style={{
         padding: "2em",
       }}>
-        <TheMap height="600px" points={fakePositions}/>
+        <TheMap height="600px" points={fakePositions} isLonLat={true} />
       </div>      
     )
   }

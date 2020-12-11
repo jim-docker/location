@@ -2,9 +2,11 @@ import { LensRendererExtension, Interface, Component, K8sApi } from "@k8slens/ex
 import React from "react"
 
 import { GlobalPage } from "./components/global-page";
+import { DemoPage } from "./components/demo-page";
 import { ClusterPage } from "./components/cluster-page";
 import { GlobalPageMenuIcon } from "./components/GlobalPageMenuIcon";
-import { TheMap } from "./components/the-map";
+import { DemoPageMenuIcon } from "./components/DemoPageMenuIcon";
+import { GeolocationFeature } from "./components/geolocation-feature"
 import { NodeDetailsItem } from "./components/node-details-item";
 
 import { LocationPreferenceHint, LocationPreferenceInput } from "./components/location-preference";
@@ -29,6 +31,12 @@ export default class RendererExtension extends LensRendererExtension {
       components: {
         Page: () => <GlobalPage extension={this}/>,
       }
+    },
+    {
+      id: "demolocation",
+      components: {
+        Page: () => <DemoPage extension={this}/>,
+      }
     }
   ]
 
@@ -38,6 +46,13 @@ export default class RendererExtension extends LensRendererExtension {
       target: { pageId: "location"},
       components: {
         Icon: GlobalPageMenuIcon,
+      }
+    },
+    {
+      title: "Simulated Map Overview",
+      target: { pageId: "demolocation"},
+      components: {
+        Icon: DemoPageMenuIcon,
       }
     }
   ]
@@ -86,6 +101,22 @@ export default class RendererExtension extends LensRendererExtension {
         Input: () => <LocationPreferenceInput preferences={locationPreferencesStore}/>,
         Hint: () => <LocationPreferenceHint/>
       }
+    }
+  ];
+
+  clusterFeatures = [
+    {
+      title: "Location Services",
+      components: {
+        Description: () => {
+          return (
+            <span>
+                Enable the geolocator to run on each node to determine each one's geolocation.
+            </span>
+          )
+        }
+      },
+      feature: new GeolocationFeature()
     }
   ];
 }
