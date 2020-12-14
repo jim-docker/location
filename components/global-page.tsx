@@ -10,6 +10,7 @@ const { PageLayout } = Component;
 
 const clusterStore = Store.clusterStore
 
+var extension: LensRendererExtension;
 @observer
 export class GlobalPage extends React.Component<{ extension: LensRendererExtension }> {
 
@@ -19,6 +20,7 @@ export class GlobalPage extends React.Component<{ extension: LensRendererExtensi
   private rootElem: HTMLElement;
 
   async componentDidMount() {
+    extension = this.props.extension;
     this.locations = [];
     this.clusterLabels = [];
 
@@ -75,9 +77,9 @@ export class GlobalPage extends React.Component<{ extension: LensRendererExtensi
         var nodeName = node.getName();
         var lonStr = data.get([cluster.contextName, nodeName, "lon"].join("."));
         var latStr = data.get([cluster.contextName, nodeName, "lat"].join("."));
-        console.log(`cluster: ${cluster.contextName}; node: ${nodeName}; lat: ${latStr}; lon: ${lonStr}`);
+        console.log(`cluster: ${cluster.contextName} - ${cluster.id}; node: ${nodeName}; lat: ${latStr}; lon: ${lonStr}`);
         this.locations.push([+lonStr, +latStr]);
-        this.clusterLabels.push(cluster.contextName);
+        this.clusterLabels.push(cluster.id);
       });
 
     } catch {
@@ -90,7 +92,8 @@ export class GlobalPage extends React.Component<{ extension: LensRendererExtensi
   onClick(clusterLabel: string): void {
     console.log("onClick() called for ", clusterLabel);
     this.hoverText = `Activate ${clusterLabel}`;
-    clusterStore.setActive(clusterLabel);
+    clusterStore.activeClusterId = clusterLabel;
+    extension.navigate(`/cluster/${clusterLabel}`);
   }
 }
 
