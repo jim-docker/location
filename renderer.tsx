@@ -72,13 +72,13 @@ export default class RendererExtension extends LensRendererExtension {
   clusterPageMenus = [
     // a cluster menu item which links to a cluster page
     {
-      title: "Cluster Map",
+      title: "Node Locations",
       target: {
         pageId: this.#clusterPageId,
         params: {}
       },
       components: {
-        Icon: (): JSX.Element => <Icon material="map" />,
+        Icon: (): JSX.Element => <Icon material="location_on" />,
       }
     },
   ];
